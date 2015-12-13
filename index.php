@@ -3,28 +3,47 @@ echo "<pre>";
 
 require_once('autoloader.php');
 
-use Model\Connexion as Connexion;
 use Model\QueryBuilder as QueryBuilder;
+use Model\Log as Log;
 
 try {
-    $connexion = new Connexion('localhost','cinema', 'root', '');
+    $connexion = new QueryBuilder('localhost','test', 'root', 'root');
     echo "Vous etes connecte \n";
 }
 catch (Exception $e) {
     die("Impossible de se connecter a la base de donnee");
 }
 
-$query = new QueryBuilder('localhost','test', 'root', '');
-$response = $query->select('*','users', null, null, null, null);
-$query->update('users', 'username', 'xerxffexex', 'id', '8');
-$count = $query->count('users');
-$exist = $query->exist('users', 'id = 9');
+/*try {
+    $response = $connexion->select('*','users');
+    var_dump($response);
+    Log::access();
+}
+catch (Exception $e) {
+    Log::error();
+    die("Impossible de se connecter a la base de donnee");
+}*/
+// select(data, table1, joinFactor = null, table2 = null, where = null, orderBy = null)
+$response = $connexion->select('*','users');
+if(!empty($response)) {
+    var_dump($response);
+    Log::access();
+}
+else {
+    Log::error();
+    die("Requete invalide");
+}
+/*
+$response = $connexion->select('*','users', null, null, null, null);
+$connexion->update('users', 'username', 'xerxffexex', 'id', '8');
+$count = $connexion->count('users');
+$exist = $connexion->exist('users', 'id = 9');
 if(empty($exist)) {
     echo "user inexistant";
 }
 else {
     var_dump($exist);
 }
-//$query->delete('users', 'id', '7');
+//$connexion->delete('users', 'id', '7');
 var_dump($response);
-var_dump($count);
+var_dump($count);*/

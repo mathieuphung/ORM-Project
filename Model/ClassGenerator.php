@@ -17,7 +17,7 @@ $className = $argv[6];
 $tabs = 2;
 $code = "<?php\n\n";
 $code .= "namespace Model;\n\n";
-$code .= "class $className\n{\n";
+$code .= 'class' .  ucfirst($className). '\n{\n';
 
 function select($host, $db, $user, $password, $tableName) {
     $query = "SHOW columns FROM $tableName";

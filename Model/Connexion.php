@@ -1,17 +1,17 @@
 <?php
 namespace Model;
 
-class Connexion extends \PDO{
-    private $connexion = null;
+abstract class Connexion extends \PDO{
+    private static $connexion = null;
 
     public function __construct($host, $db, $user, $password)
     {
-        $this->connexion = new \PDO('mysql:host='.$host.';dbname='.$db, $user, $password);
-        $this->connexion->query("SET NAMES utf-8;");
+        self::$connexion = new \PDO('mysql:host='.$host.';dbname='.$db, $user, $password);
+        self::$connexion->query("SET NAMES utf-8;");
     }
 
-    public function getConnexion()
+    public static function getConnexion()
     {
-        return $this->connexion;
+        return self::$connexion;
     }
 }
