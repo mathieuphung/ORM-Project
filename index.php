@@ -5,6 +5,7 @@ require_once('autoloader.php');
 
 use Model\QueryBuilder as QueryBuilder;
 use Model\Log as Log;
+use Model\Jean as Jean;
 
 try {
     $connexion = new QueryBuilder('localhost','test', 'root', 'root');
@@ -47,3 +48,10 @@ else {
 //$connexion->delete('users', 'id', '7');
 var_dump($response);
 var_dump($count);*/
+
+$user = new Jean();
+$user->setEmail("jean@gmail.com");
+$user->setPassword("toto");
+$user->setUsername("jean");
+$user->getAll();
+var_dump($user->infos);

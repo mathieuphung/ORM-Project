@@ -61,11 +61,11 @@ class QueryBuilder extends Connexion
         return $data;
     }
 
-    public function exist($table, $where) {
+    public function exist($table, $whereParam, $whereValue) {
         self::$queryType = strtoupper('exist');
 
         // QUERY
-        $query = 'SELECT * FROM ' . $table . ' WHERE ' . $where;
+        $query = 'SELECT * FROM ' . $table . ' WHERE ' . $whereParam . ' = ' . $whereValue;
         self::$query = $query;
         // PREPARE AND EXECUTE QUERY
         $prepare = parent::getConnexion()->prepare($query);
@@ -73,6 +73,30 @@ class QueryBuilder extends Connexion
         $prepare->execute();
         $data = $prepare->fetchAll();
 
-        return $data;
+        if(empty($data)) {
+            return false;
+        }
+        else {
+            return true;
+        }
+    }
+
+    public function persist($obj) {
+        $table = $obj->getTable();
+        $data = $obj->getAll();
+
+        $exist = $this->exist($table, $obj->columns[1], $data[1]);
+        if(empty($exist)) {
+            self::$queryType = strtoupper('insert');
+
+            $query = 'INSERT INTO ' . $obj->getTable() . ' VALUE (' . $data . ');';
+
+            $prepare = parent::getConnexion()->prepare($query);
+            self::$prepare = $prepare;
+            $prepare->execute();
+        }
+        else {
+            $this->update($table, $obj->columns, $data, $obj->columns[1], $data[1]);
+        }
     }
 }

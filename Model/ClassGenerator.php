@@ -2,7 +2,7 @@
 function do_tabs($tabs)
 {
     $ret = '';
-    for ($i=0; $i < $tabs; $i++) {
+    for ($i=0; $i <= $tabs; $i++) {
         $ret .= ' ';
         return $ret;
     }
@@ -14,10 +14,10 @@ $password= $argv[4];
 $tableName = $argv[5];
 $className = $argv[6];
 // Do some magic here
-$tabs = 2;
+$tabs = 4;
 $code = "<?php\n\n";
 $code .= "namespace Model;\n\n";
-$code .= 'class' .  ucfirst($className). '\n{\n';
+$code .= "class " .  ucfirst($className). "\n{\n";
 
 function select($host, $db, $user, $password, $tableName) {
     $query = "SHOW columns FROM $tableName";
@@ -30,6 +30,15 @@ function select($host, $db, $user, $password, $tableName) {
     return $data;
 }
 $fields = select($host, $db, $user, $password, $tableName);
+
+$code .= do_tabs($tabs) . 'protected $columns = [';
+foreach ($fields as $field)
+{
+    $code .="'".  $field['Field']."', ";
+}
+$code .= do_tabs($tabs) . "];\n";
+
+$code .= do_tabs($tabs) . "protected \$infos = [];\n";
 
 foreach ($fields as $field)
 {
@@ -47,5 +56,16 @@ foreach ($fields as $field)
     $code .= do_tabs($tabs+2) . '$this->'.$field['Field'].' = $'.$field['Field'].";\n";
     $code .= do_tabs($tabs) . "}\n\n";
 }
+
+$code .= do_tabs($tabs) . "public function getAll()\n";
+$code .= do_tabs($tabs) . "{\n";
+$code .= do_tabs($tabs) . "\$data = [];\n";
+foreach ($fields as $field)
+{
+    $code .= do_tabs($tabs) . '$data[] = $this->' . $field['Field'] . ";\n";
+}
+$code .= do_tabs($tabs) . "return \$this->infos = \$data;\n";
+$code .= do_tabs($tabs) . "}\n\n";
+
 $code .= "}\n";
-file_put_contents($className.".php", $code);
+file_put_contents(ucfirst($className).".php", $code);
