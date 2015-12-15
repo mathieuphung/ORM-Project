@@ -25,7 +25,7 @@ catch (Exception $e) {
     die("Impossible de se connecter a la base de donnee");
 }*/
 // select(data, table1, joinFactor = null, table2 = null, where = null, orderBy = null)
-$response = $connexion->select('*','users');
+$response = $connexion->getById('users', 10);
 if(!empty($response)) {
     var_dump($response);
     Log::access();
@@ -50,8 +50,10 @@ var_dump($response);
 var_dump($count);*/
 
 $user = new Jean();
-$user->setEmail("jean@gmail.com");
-$user->setPassword("toto");
-$user->setUsername("jean");
-$user->getAll();
-var_dump($user->infos);
+$user->getWithId(10);
+var_dump($user->getAll());
+$user->setUsername('lolo');
+$user->setId(5);
+var_dump($user->getAll());
+
+$connexion->persist($user);

@@ -17,7 +17,7 @@ $className = $argv[6];
 $tabs = 4;
 $code = "<?php\n\n";
 $code .= "namespace Model;\n\n";
-$code .= "class " .  ucfirst($className). "\n{\n";
+$code .= "class " .  ucfirst($className). " extends QueryBuilder\n{\n";
 
 function select($host, $db, $user, $password, $tableName) {
     $query = "SHOW columns FROM $tableName";
@@ -38,13 +38,20 @@ foreach ($fields as $field)
 }
 $code .= do_tabs($tabs) . "];\n";
 
-$code .= do_tabs($tabs) . "protected \$infos = [];\n";
+$code .= do_tabs($tabs) . "public \$infos = [];\n";
+$code .= do_tabs($tabs) . "public \$table = '$argv[5]';\n";
+$code .= do_tabs($tabs) . "private \$connexion = null;\n";
 
 foreach ($fields as $field)
 {
-    $code .= do_tabs($tabs) . 'protected $'.$field['Field'].";\n";
+    $code .= do_tabs($tabs) . 'public $'.$field['Field'].";\n";
 }
 $code .= "\n";
+$code .= do_tabs($tabs) . "public function __construct()\n";
+$code .= do_tabs($tabs) . "{\n";
+$code .= do_tabs($tabs) . "\$this->connexion = new \\PDO('mysql:host=$host;dbname=$db', '$user', '$password');
+        \$this->connexion->query(\"SET NAMES utf-8;\");\n";
+$code .= do_tabs($tabs) . "}\n\n";
 foreach ($fields as $field)
 {
     $code .= do_tabs($tabs) . 'public function get'.ucfirst($field['Field'])."()\n";
@@ -62,9 +69,26 @@ $code .= do_tabs($tabs) . "{\n";
 $code .= do_tabs($tabs) . "\$data = [];\n";
 foreach ($fields as $field)
 {
-    $code .= do_tabs($tabs) . '$data[] = $this->' . $field['Field'] . ";\n";
+    $code .= do_tabs($tabs) . "\$data[] = \$this->" . $field['Field'] . ";\n";
 }
 $code .= do_tabs($tabs) . "return \$this->infos = \$data;\n";
+$code .= do_tabs($tabs) . "}\n\n";
+
+$code .= do_tabs($tabs) . "public function getWithId(\$id)\n";
+$code .= do_tabs($tabs) . "{\n";
+$code .= do_tabs($tabs) . "\$exist = parent::exist(\$this->table, 'id', \$id);\n";
+$code .= do_tabs($tabs) . "if(\$exist === true)\n";
+$code .= do_tabs($tabs) . "{\n";
+$code .= do_tabs($tabs) . "\$data = parent::getById(\$this->table, \$id);\n";
+foreach ($fields as $field)
+{
+    $code .= do_tabs($tabs) . '$this->'.$field['Field']." = \$data[0]['".$field['Field']."'];\n";
+}
+$code .= do_tabs($tabs) . "return true;\n";
+$code .= do_tabs($tabs) . "}\n";
+$code .= do_tabs($tabs) . "else {\n";
+$code .= do_tabs($tabs) . "return false;\n";
+$code .= do_tabs($tabs) . "}\n";
 $code .= do_tabs($tabs) . "}\n\n";
 
 $code .= "}\n";

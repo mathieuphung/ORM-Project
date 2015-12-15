@@ -25,10 +25,19 @@ class QueryBuilder extends Connexion
     }
 
     public function update($table, $column, $data, $whereParam, $whereValue) {
+
         self::$queryType = strtoupper('update');
         // QUERY
-        $query = 'UPDATE ' . $table . ' SET ' . $column . ' = "' . $data . '" WHERE ' . $whereParam . ' = ' . $whereValue;
+        $query = 'UPDATE ' . $table . ' SET ';
+        $query .= '';
+        for($i = 0; $i < count($column)-1; $i++) {
+            $query .= $column[$i] . ' = "' . $data[$i] . '", ';
+        }
+        $query .= $column[count($column)-1] . ' = "' . $data[count($column)-1] . '"';
+
+        $query .= ' WHERE ' . $whereParam . ' = ' . $whereValue;
         self::$query = $query;
+        var_dump($query);
         // PREPARE AND EXECUTE QUERY
         $prepare = parent::getConnexion()->prepare($query);
         self::$prepare = $prepare;
@@ -81,22 +90,46 @@ class QueryBuilder extends Connexion
         }
     }
 
-    public function persist($obj) {
-        $table = $obj->getTable();
-        $data = $obj->getAll();
+    public function getById($table, $id) {
+        self::$queryType = strtoupper('SELECT BY ID');
 
-        $exist = $this->exist($table, $obj->columns[1], $data[1]);
+        // QUERY
+        $query = 'SELECT * FROM ' . $table . ' WHERE id = ' . $id;
+        self::$query = $query;
+        // PREPARE AND EXECUTE QUERY
+        $prepare = parent::getConnexion()->prepare($query);
+        self::$prepare = $prepare;
+        $prepare->execute();
+        $data = $prepare->fetchAll();
+
+        return $data;
+    }
+
+    public function persist($obj) {
+        $table = $obj->table;
+        $columns = $obj->columns;
+        $infos = $obj->infos;
+
+        $exist = $this->getById($table, $obj->id);
         if(empty($exist)) {
             self::$queryType = strtoupper('insert');
 
-            $query = 'INSERT INTO ' . $obj->getTable() . ' VALUE (' . $data . ');';
+            $query = 'INSERT INTO ' . $table;
+            $query .= '(' . implode(', ', $columns);
+            $query .= ') VALUE (';
+            for($i = 0; $i < count($infos)-1; $i++) {
+                $query .= '"' . $infos[$i] . '", ';
+            }
+            $query .= '"' . $infos[count($infos)-1] . '"';
+            $query .= ');';
+            var_dump($query);
 
             $prepare = parent::getConnexion()->prepare($query);
             self::$prepare = $prepare;
             $prepare->execute();
         }
         else {
-            $this->update($table, $obj->columns, $data, $obj->columns[1], $data[1]);
+            $this->update($table, $columns, $infos, 'id', $infos[0]);
         }
     }
 }
