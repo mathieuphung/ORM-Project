@@ -7,14 +7,15 @@ class QueryBuilder extends Connexion
     protected static $queryType;
     protected static $prepare;
 
-    public function select($data, $table1, $joinFactor = null, $table2 = null, $where = null, $orderBy = null) {
+    public function select($data, $table1, $joinFactor = null, $table2 = null, $whereParam = null, $whereValue = null, $orderBy = null) {
         self::$queryType = strtoupper('select');
         // QUERY
         $query = 'SELECT ' . $data . ' FROM ' . $table1;
         $query .= !empty($joinFactor) && !empty($table2) ? ' INNER JOIN ' . $table2 . ' ON ' . $table1 . '.' . $joinFactor . ' = ' . $table2 . '.' . $joinFactor : '';
-        $query .= !empty($where) ? ' WHERE ' . $where : '';
+        $query .= !empty($whereParam) && !empty($whereValue) ? ' WHERE ' . $whereParam . ' = ' . $whereValue : '';
         $query .= !empty($orderBy) ? ' ORDER BY ' . $orderBy : '';
         self::$query = $query;
+        var_dump($query);
         // PREPARE AND EXECUTE QUERY
         $prepare = self::getConnexion()->prepare($query);
         self::$prepare = $prepare;
@@ -24,7 +25,7 @@ class QueryBuilder extends Connexion
         return $data;
     }
 
-    public function update($table, $column, $data, $whereParam, $whereValue) {
+    public function update($table, array $column, array $data, $whereParam, $whereValue) {
 
         self::$queryType = strtoupper('update');
         // QUERY
@@ -42,6 +43,8 @@ class QueryBuilder extends Connexion
         $prepare = parent::getConnexion()->prepare($query);
         self::$prepare = $prepare;
         $prepare->execute();
+
+        Log::access();
     }
 
     public function delete($table, $whereParam, $whereValue) {
@@ -50,10 +53,19 @@ class QueryBuilder extends Connexion
         $query = 'DELETE FROM ' . $table . ' WHERE ' . $whereParam . ' = ' . $whereValue;
         self::$query = $query;
         // PREPARE AND EXECUTE QUERY
-        $prepare = parent::getConnexion()->prepare($query);
-        self::$prepare = $prepare;
-        $prepare->execute();
 
+        Log::access();
+
+        if($this->exist($table, $whereParam, $whereValue)) {
+            $prepare = parent::getConnexion()->prepare($query);
+            self::$prepare = $prepare;
+            $prepare->execute();
+
+            return true;
+        }
+        else {
+            return false;
+        }
     }
 
     public function count($table) {
@@ -81,6 +93,8 @@ class QueryBuilder extends Connexion
         self::$prepare = $prepare;
         $prepare->execute();
         $data = $prepare->fetchAll();
+
+        Log::access();
 
         if(empty($data)) {
             return false;

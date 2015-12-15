@@ -15,17 +15,10 @@ catch (Exception $e) {
     die("Impossible de se connecter a la base de donnee");
 }
 
-/*try {
-    $response = $connexion->select('*','users');
-    var_dump($response);
-    Log::access();
-}
-catch (Exception $e) {
-    Log::error();
-    die("Impossible de se connecter a la base de donnee");
-}*/
-// select(data, table1, joinFactor = null, table2 = null, where = null, orderBy = null)
-$response = $connexion->getById('users', 10);
+// select(data, table1, joinFactor = null, table2 = null, $whereParam = null, $whereValue = null, orderBy = null)
+// SELECT
+/*
+$response = $connexion->select('*','users', null, null, null, null);
 if(!empty($response)) {
     var_dump($response);
     Log::access();
@@ -33,27 +26,55 @@ if(!empty($response)) {
 else {
     Log::error();
     die("Requete invalide");
-}
-/*
-$response = $connexion->select('*','users', null, null, null, null);
-$connexion->update('users', 'username', 'xerxffexex', 'id', '8');
-$count = $connexion->count('users');
-$exist = $connexion->exist('users', 'id = 9');
-if(empty($exist)) {
-    echo "user inexistant";
+}*/
+
+// WHERE
+/*$response = $connexion->select('*','users', null, null, 'id', 8);
+if(!empty($response)) {
+    var_dump($response);
+    Log::access();
 }
 else {
-    var_dump($exist);
-}
-//$connexion->delete('users', 'id', '7');
-var_dump($response);
-var_dump($count);*/
+    Log::error();
+    die("Requete invalide");
+}*/
 
+// update($table, array $column, array $data, $whereParam, $whereValue)
+//$connexion->update('users', ['username'], ['rrecezc'], 'id', '8');
+
+// COUNT
+/*$count = $connexion->count('users');
+if(!empty($count)) {
+    var_dump($count);
+    Log::access();
+}
+else {
+    Log::error();
+    die("Requete invalide");
+}*/
+
+// EXIST
+/*$exist = $connexion->exist('users', 'id', 9);
+if(!empty($exist)) {
+    var_dump($exist);
+    Log::access();
+}
+else {
+    Log::error();
+    die("Requete invalide");
+}*/
+
+// DELETE
+/*$delete = $connexion->delete('users', 'id', 56);
+var_dump($delete);*/
+
+// PERSIST
+/*
 $user = new Jean();
 $user->getWithId(10);
 var_dump($user->getAll());
-$user->setUsername('lolo');
-$user->setId(5);
+$user->setUsername('yolo');
+$user->setPassword('tonton');
 var_dump($user->getAll());
 
-$connexion->persist($user);
+$connexion->persist($user);*/

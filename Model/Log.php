@@ -17,7 +17,7 @@ class Log extends QueryBuilder
     public static function error()
     {
         $message = self::$prepare->errorInfo();
-
+        var_dump($message);
         error_log("[" . date('d-m-Y h:i:s', time()) . "] " . self::$queryType . " : " . $message[2] . "\n", 3, self::$errorFile);
     }
 }
